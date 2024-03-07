@@ -14,23 +14,43 @@ Command bot diawali dengan rz!
 berikut beberapa command SuZu
 ###General commands:
 rz! help - Menampilkan Semua Command Bot SuZu
+
 rz! hello - menyapa SuZu
+
 rz! absen - Absen adick-adick
+
 rz! poke - Poke SuZu
+
 rz! invite - Menampilkan label Invite
+
 rz! play - SuZu join voice channel dan play musik
+
 rz! stop/disconnect - SuZu keluar voice channel
+
 rz! pause - SuZu pause music 
+
 rz! resume - SuZu resume music
+
 rz! skip - SuZu skip music
+
 rz! queue - SuZu menampilkan queue music
+
 rz! clear - SuZu stop dan clear music
+
 rz! remove - SuZu remove musik terakhir di queue
+
 /say - SuZu ngomong
+
 KTP member - Klik kanan Member -> apps-> KTP
 
+
 ###GIF commands:
+
 rz! mad - marah😡
+
 rz! madat - marah ke @taguser😡
+
 rz! pokeuser - poke @taguser
+
 rz! tangi - @taguser bangun bang
+
