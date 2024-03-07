@@ -138,11 +138,11 @@ class InviteButton(discord.ui.View):
   #                     button: discord.ui.Button):
   #   await interaction.response.send_message(self.inv, ephemeral=True)
 
-  @discord.ui.button(label="K89", style=discord.ButtonStyle.green)
+  @discord.ui.button(label="My YT channel", style=discord.ButtonStyle.green)
   async def inviteK89(self, interaction: discord.Interaction,
                       button: discord.ui.Button):
     await interaction.response.send_message(
-      content="https://discord.gg/aHS28hh", ephemeral=True)
+      content="https://www.youtube.com/channel/UCasyDhK0j3BFt-puGHw74TA", ephemeral=True)
 
 
 @client.command()
