@@ -1,5 +1,6 @@
 # SuZu discord bot
 SuZu discord bot merupakan Bot private dari server private Saint
+
 ![](https://media.tenor.com/bnQLFSkqAhoAAAAC/haruhi-win.gif)
 
 # Requirement
