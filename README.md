@@ -9,10 +9,13 @@ SuZu discord bot merupakan Bot private dari server private Saint
   - youtube-dl
   - other i forgor
   
-## Command
+# Command
 Command bot diawali dengan rz!
+
 berikut beberapa command SuZu
-###General commands:
+
+##General commands
+
 rz! help - Menampilkan Semua Command Bot SuZu
 
 rz! hello - menyapa SuZu
@@ -44,7 +47,7 @@ rz! remove - SuZu remove musik terakhir di queue
 KTP member - Klik kanan Member -> apps-> KTP
 
 
-###GIF commands:
+##GIF commands
 
 rz! mad - marah😡
 
