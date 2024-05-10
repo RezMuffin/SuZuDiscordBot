@@ -2,8 +2,9 @@
 
 SuZu discord bot merupakan Bot private dari server private Saint
 
+<p align = "center">
 ![](https://media.tenor.com/bnQLFSkqAhoAAAAC/haruhi-win.gif)
-
+</p>
 # Requirement
 
 - install [ffmpeg](https://ffmpeg.org/download.html)
