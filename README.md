@@ -9,6 +9,12 @@ SuZu discord bot merupakan Bot private dari server private Saint
   - PyNaCl
   - youtube-dl
   - other i forgor
+
+# How to use
+* Make your own bot in [here](https://discord.com/developers/applications)
+* Make new text called TOKEN and fill it with the BOT TOKEN
+* Run SuZuDiscord.bat
+
   
 # Command
 Command bot diawali dengan rz!
