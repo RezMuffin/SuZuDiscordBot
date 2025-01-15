@@ -3,166 +3,182 @@ from discord.ext import commands
 from yt_dlp import YoutubeDL
 import asyncio
 from discord import FFmpegPCMAudio
+import youtube_dl
 
 class music_cmd(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
         self.is_playing = False
         self.is_paused = False
 
         self.music_queue = []
-        self.YDL_OPTIONS = {'format': 'bestaudio/best'}
+        self.YDL_OPTIONS = {
+            'format': 'bestaudio/best',
+            'quiet': True,
+            'default_search': 'ytsearch',
+            'extract_flat': False,
+            'noplaylist': True,
+            'source_address': '0.0.0.0',  # Bind ke IPv4 untuk menghindari masalah dengan IPv6
+            'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'} ,
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',}
+            ]
+        }
         # self.YDL_OPTIONS = {
         #     'format': 'bestaudio/best',
-        #     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
-        #     'restrictfilenames': True,
-        #     'noplaylist': True,
-        #     'nocheckcertificate': True,
-        #     'ignoreerrors': False,
-        #     'logtostderr': False,
         #     'quiet': True,
-        #     'no_warnings': True,
         #     'default_search': 'auto',
-        #     'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
+        #     'noplaylist': True
         # }
-        self.FFMPEG_OPTIONS = {'options': '-vn'}
-        # self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-        #                        'options': '-vn -volume 1.0'}
+        self.FFMPEG_OPTIONS = {
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            'options': '-vn'
+        }
         self.vc = None
         self.ytdl = YoutubeDL(self.YDL_OPTIONS)
 
-    #search link Youtube
+    # Search YouTube
     def search_yt(self, item):
-        if item.startswith("https://"):
-            title = self.ytdl.extract_info(item, download=False)["title"]
-            return {'source': item, 'title': title}
-        with YoutubeDL(self.YDL_OPTIONS) as ydl:
-            try:
-                info = ydl.extract_info(f"ytsearch:{item}", download=False)['entries'][0]
-            except Exception as e:
-                print(e)
-                return None
-            return {'source': info['formats'][0]['url'], 'title': info['title']}
-    #play next
+        try:
+            # input -> link
+            if item.startswith("http://") or item.startswith("https://"):
+                with YoutubeDL(self.YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info(item, download=False)
+                return {'source': info['url'], 'title': info['title']}
+            else:
+                # input -> search
+                with YoutubeDL(self.YDL_OPTIONS) as ydl:
+                    info = ydl.extract_info(f"ytsearch:{item}", download=False)['entries'][0]
+                return {'source': info['url'], 'title': info['title']}
+        except Exception as e:
+            print(f"Error searching YouTube: {e}")
+            return None
+
+
+    # Play next song dari queue
     async def play_next(self):
         if len(self.music_queue) > 0:
             self.is_playing = True
 
-            m_url = self.music_queue[0][0]['source']
+            song = self.music_queue.pop(0)
+            m_url = song['source']
 
-            self.music_queue.pop(0)
-            loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: self.ytdl.extract_info(m_url, download=False))
-            song = data['url']
-            self.vc.play(discord.FFmpegPCMAudio(song, executable="ffmpeg.exe", **self.FFMPEG_OPTIONS), after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(), self.bot.loop))
+            try:
+                self.vc.play(
+                    discord.FFmpegPCMAudio(m_url, **self.FFMPEG_OPTIONS),
+                    after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(), self.bot.loop)
+                )
+            except Exception as e:
+                print(f"Error playing next song: {e}")
+                self.is_playing = False
         else:
             self.is_playing = False
-    #play dan queue
+
+    # Play or queue music
     async def play_music(self, ctx):
         if len(self.music_queue) > 0:
             self.is_playing = True
 
-            m_url = self.music_queue[0][0]['source']
-            #connect ke VC dan play 
-            if self.vc == None or not self.vc.is_connected():
-                self.vc = await self.music_queue[0][1].connect()
+            song = self.music_queue[0]
+            m_url = song['source']
 
-               
-                if self.vc == None:
-                    await ctx.send("SuZu gagal join voice channel")
-                    return
-            else:
-                await self.vc.move_to(self.music_queue[0][1])
-            #hilangin queue no 1
+            if self.vc is None or not self.vc.is_connected():
+                self.vc = await song['voice_channel'].connect()
+                await ctx.send("SuZu telah bergabung ke Voice channel 😊")
+
+            if self.vc is None:
+                await ctx.send("SuZu tidak dapat bergabung ke Voice channel😥")
+                return
+
             self.music_queue.pop(0)
-            loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: self.ytdl.extract_info(m_url, download=False))
-            song = data['url']
-            self.vc.play(discord.FFmpegPCMAudio(song, executable="ffmpeg.exe", **self.FFMPEG_OPTIONS), after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(), self.bot.loop))
-           
+
+            try:
+                self.vc.play(
+                    discord.FFmpegPCMAudio(m_url, **self.FFMPEG_OPTIONS),
+                    after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(), self.bot.loop)
+                )
+            except Exception as e:
+                print(f"Error playing song: {e}")
+                self.is_playing = False
         else:
             self.is_playing = False
 
-    @commands.command(name="play", aliases=["p","playing"], help="SuZu Join voice channel dan play musik")
+    @commands.command(name="play", aliases=["p", "playing"], help="Memutar lagu dan menambahkan ke queue")
     async def play(self, ctx, *args):
         query = " ".join(args)
+
         try:
             voice_channel = ctx.author.voice.channel
-        except:
+        except AttributeError:
             await ctx.send("Masuk voice channel dulu bodoh!🫵😡")
             return
-        if self.is_paused:
-            self.vc.resume()
+
+        song = self.search_yt(query)
+        if song is None:
+            await ctx.send("SuZu tidak dapat memutar lagu, terjadi kesalahan format")
         else:
-            song = self.search_yt(query)
-            if type(song) == type(True):
-                await ctx.send("SuZu tidak bisa mendownload music.")
+            song['voice_channel'] = voice_channel
+            self.music_queue.append(song)
+
+            if not self.is_playing:
+                await self.play_music(ctx)
+                await ctx.send(f"Lagu telah diputar: **{song['title']}**")
             else:
-                if self.is_playing:
-                    await ctx.send(f"**#{len(self.music_queue)+2} -'{song['title']}'** sudah masuk ke queue")  
-                else:
-                    await ctx.send(f"**'{song['title']}'** sudah masuk ke queue")  
-                self.music_queue.append([song, voice_channel])
-                if self.is_playing == False:
-                    await self.play_music(ctx)
-    #pause lagu
-    @commands.command(name="pause", help="SuZu pause music")
-    async def pause(self, ctx, *args):
+                await ctx.send(f"Lagu ditambahkan ke queue: **{song['title']}**")
+
+    @commands.command(name="pause", help="Pause lagu yang sedang diputar")
+    async def pause(self, ctx):
         if self.is_playing:
             self.is_playing = False
             self.is_paused = True
             self.vc.pause()
-            await ctx.send("Paused ⏸️")
-        elif self.is_paused:
-            self.is_paused = False
-            self.is_playing = True
-            self.vc.resume()
-    #resume lagu
-    @commands.command(name = "resume", aliases=["r"], help="SuZu resume music")
-    async def resume(self, ctx, *args):
+            await ctx.send("Suzu Paused⏸")
+        else:
+            await ctx.send("Palakau pause, kau sedang tidak memutar lagu bodoh!")
+
+    @commands.command(name="resume", aliases=["r"], help="Melanjutkan Lagu")
+    async def resume(self, ctx):
         if self.is_paused:
             self.is_paused = False
             self.is_playing = True
             self.vc.resume()
-            await ctx.send("Resuming ⏯️")
-    #Skip lagu
-    @commands.command(name="skip", aliases=["s"], help="SuZu skip music")
-    async def skip(self, ctx):
-        if self.vc != None and self.vc:
-            self.vc.stop()
-            #memutar lagu selanjutnya jika ada 
-            await self.play_music(ctx)
-    #menampilkan queue
-    @commands.command(name="queue", aliases=["q"], help="SuZu menampilkan queue music")
-    async def queue(self, ctx):
-        retval = ""
-        for i in range(0, len(self.music_queue)):
-            retval += f"#{i+1} -" + self.music_queue[i][0]['title'] + "\n"
-
-        if retval != "":
-            await ctx.send(f"```queue:\n{retval}```")
+            await ctx.send("SuZu Resume ⏯️")
         else:
-            await ctx.send("Tidak ada musik di queue")
-    #clear queue music
-    @commands.command(name="clear", aliases=["c", "bin"], help="SuZu stop dan clear music")
-    async def clear(self, ctx):
-        if self.vc != None and self.is_playing:
+            await ctx.send("Tidak ada lagu yang dipause")
+
+    @commands.command(name="skip", aliases=["s"], help="Skip lagu")
+    async def skip(self, ctx):
+        if self.vc and self.vc.is_playing():
             self.vc.stop()
+            await self.play_music(ctx)
+        else:
+            await ctx.send("Tidak ada musik yang diputar")
+
+    @commands.command(name="queue", aliases=["q"], help="Mempelihatkan queue")
+    async def queue(self, ctx):
+        if len(self.music_queue) > 0:
+            retval = "\n".join([f"#{i + 1} - {song['title']}" for i, song in enumerate(self.music_queue)])
+            await ctx.send(f"```Queue:\n{retval}```")
+        else:
+            await ctx.send("Queue lagu kosong kaya otak lu 🫵😌")
+
+    @commands.command(name="clear", aliases=["c", "bin"], help="Clear queue")
+    async def clear(self, ctx):
         self.music_queue = []
-        await ctx.send("Music sudah hilang dari peradaban")
-    #stop/disconect bot
-    @commands.command(name="stop", aliases=["disconnect","leave", "l", "dc"], help="SuZu keluar voice channel")
-    async def dc(self, ctx):
+        if self.vc and self.vc.is_playing():
+            self.vc.stop()
+        await ctx.send("Lagu sudah hilang dari peradaban")
+
+    @commands.command(name="stop", aliases=["disconnect", "leave", "l", "dc"], help="SuZu keluar voice channel")
+    async def stop(self, ctx):
         self.is_playing = False
         self.is_paused = False
         await self.vc.disconnect()
-        await ctx.send("SuZu keluar voice channel")
-    #remove lagu terakhir dari queue
-    @commands.command(name="remove", help="SuZu remove musik terakhir di queue")
-    async def re(self, ctx):
-        self.music_queue.pop()
-        await ctx.send("Yahaha lagumu sudah hilang dari queue")
+        await ctx.send("SuZu telah keluar dari voice channel 😴")
 
 
 
