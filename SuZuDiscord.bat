@@ -1,4 +1,5 @@
 @echo off
 title Run Bot discord SuZu
-python "D:\Pemrograman Save\SuZuDiscordBot\main.py"
+cd /d "%~dp0"
+python "main.py"
 pause
