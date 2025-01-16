@@ -70,7 +70,7 @@ tangi_gif = [
    'https://media1.tenor.com/m/pbzPHcx81nkAAAAC/haruhi-suzumiya-waking-up.gif'
 ]
 
-@client.command()
+@client.hybrid_command()
 async def madat(ctx,target: discord.Member):
   embed = discord.Embed(
     colour=(discord.Colour.random()),
@@ -78,7 +78,7 @@ async def madat(ctx,target: discord.Member):
   embed.set_image(url=(random.choice(mad_gif)))
   await ctx.send(embed=embed)
 
-@client.command()
+@client.hybrid_command()
 async def mad(ctx):
   embed = discord.Embed(
     colour=(discord.Colour.random()),
@@ -86,7 +86,7 @@ async def mad(ctx):
   embed.set_image(url=(random.choice(mad_gif)))
   await ctx.send(embed=embed)
 
-@client.command()
+@client.hybrid_command()
 async def pokeuser(ctx,target: discord.Member):
   embed = discord.Embed(
     colour=(discord.Colour.random()),
@@ -94,13 +94,13 @@ async def pokeuser(ctx,target: discord.Member):
   embed.set_image(url=(random.choice(poke_gif)))
   await ctx.send(embed=embed)
 
-@client.command()
+@client.hybrid_command()
 async def yay(ctx):
   embed = discord.Embed(colour=(discord.Colour.random()))
   embed.set_image(url=(random.choice(happy_gif)))
   await ctx.send(embed=embed)
 
-@client.command()
+@client.hybrid_command()
 async def tangi(ctx,target: discord.Member):
   embed = discord.Embed(
     colour=(discord.Colour.random()),
@@ -110,12 +110,28 @@ async def tangi(ctx,target: discord.Member):
 
 
 # Slash Command
-
 @client.tree.command(name="say")
 @app_commands.describe(thing_to_say="What Should I say?")
 async def say(interaction: discord.Interaction, thing_to_say: str):
   await interaction.response.send_message(f"{thing_to_say}")
 
+@client.tree.command(name="serverinfo")
+async def server_info(interaction: discord.Interaction):
+    guild = interaction.guild
+    embed = discord.Embed(title=f"Informasi server {guild.name}")
+    embed.add_field(name="Server Name", value=guild.name)
+    embed.add_field(name="Server ID", value=guild.id)
+    embed.add_field(name="Total Member", value=guild.member_count)
+    embed.add_field(name="Owner", value=guild.owner)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+# @client.tree.command(name="poll")
+# @app_commands.describe(question="Pertanyaan", option1="Opsi 1", option2="Opsi 2")
+# async def poll(interaction: discord.Interaction, question: str, option1: str, option2: str):
+#     embed = discord.Embed(title=question, description=f"1️⃣ {option1}\n2️⃣ {option2}")
+#     poll_message = await interaction.response.send_message(embed=embed)
+#     await poll_message.add_reaction("1️⃣")
+#     await poll_message.add_reaction("2️⃣")
 
 # Invite Button
 #anda bisa mengganti ini ke link yang anda mau

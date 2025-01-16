@@ -166,12 +166,25 @@ class music_cmd(commands.Cog):
         else:
             await ctx.send("Queue lagu kosong kaya otak lu 🫵😌")
 
-    @commands.command(name="clear", aliases=["c", "bin"], help="Clear queue")
-    async def clear(self, ctx):
-        self.music_queue = []
-        if self.vc and self.vc.is_playing():
-            self.vc.stop()
-        await ctx.send("Lagu sudah hilang dari peradaban")
+    @commands.command(name="clear", aliases=["c", "bin"], help="Clear queue atau hapus lagu tertentu dari queue")
+    async def clear(self, ctx, index: int = None):
+        if index is None:
+            # Menghapus seluruh queue
+            self.music_queue = []
+            if self.vc and self.vc.is_playing():
+                self.vc.stop()
+            await ctx.send("Lagu sudah hilang dari peradaban")
+        else:
+            # Menghapus lagu tertentu dari queue
+            try:
+                if index < 1 or index > len(self.music_queue):
+                    await ctx.send(f"Tidak ada lagu pada nomor {index} dalam queue!")
+                    return
+
+                removed_song = self.music_queue.pop(index - 1)
+                await ctx.send(f"Lagu **{removed_song['title']}** telah dihapus dari queue.")
+            except ValueError:
+                await ctx.send("Mohon berikan urutan lagu yang sesuai")
 
     @commands.command(name="stop", aliases=["disconnect", "leave", "l", "dc"], help="SuZu keluar voice channel")
     async def stop(self, ctx):
