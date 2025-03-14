@@ -23,7 +23,7 @@ General commands:
 {self.bot.command_prefix}resume - SuZu resume music
 {self.bot.command_prefix}skip - SuZu skip music
 {self.bot.command_prefix}queue - SuZu menampilkan queue music
-{self.bot.command_prefix}clear - SuZu stop dan clear music
+{self.bot.command_prefix}disconnect - SuZu stop dan clear music
 {self.bot.command_prefix}remove - SuZu remove musik terakhir di queue
 /say - SuZu ngomong
 KTP member - Klik kanan Member -> apps-> KTP
