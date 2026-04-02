@@ -11,14 +11,14 @@ SuZu discord bot merupakan Bot private dari server private Saint
 - install [ffmpeg](https://ffmpeg.org/download.html)
 - install module
   - PyNaCl
-  - youtube-dl
+  - Ytdl
   - other i forgor
 
 # How to use
 
 - Make your own bot in [here](https://discord.com/developers/applications)
-- Make new text file called "TOKEN" and fill it with the BOT TOKEN
-- Run SuZuDiscord.bat
+- Make new .env file and fill it with TOKEN=YOUR_BOT_TOKEN
+- Run Bot
 
 # Command
 
