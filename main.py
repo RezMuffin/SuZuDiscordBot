@@ -12,8 +12,13 @@ import yt_dlp as youtube_dl
 import os
 from help_cmd import help_cmd
 from music import music_cmd
-import youtube_dl
+# import youtube_dl
 from yt_dlp import YoutubeDL
+from dotenv import load_dotenv
+
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
+
 
 client = commands.Bot(command_prefix='rz! ', intents=discord.Intents.all())
 music = DiscordUtils.Music()
@@ -34,19 +39,19 @@ async def on_ready():
 
 
 #test
-@client.command()
+@client.hybrid_command()
 async def hello(ctx):
   await ctx.send("Hi!")
 
 
 #absen
-@client.command()
+@client.hybrid_command()
 async def absen(ctx):
   username = ctx.message.author.mention
   await ctx.send("Ada " + username)
 
 #poke
-@client.command()
+@client.hybrid_command()
 async def poke(ctx):
   username = ctx.message.author.mention
 
@@ -56,18 +61,18 @@ async def poke(ctx):
 #Gif
 mad_gif = [
   'https://media.tenor.com/gBLiDuugyrMAAAAC/haruhi-suzumiya-haruhi.gif',
-  'https://media1.tenor.com/m/iYNJR0wL_s8AAAAC/melancholy-haruhi-suzumiya.gif',
-  'https://media1.tenor.com/m/e0-bLlepygYAAAAC/angry-yelling.gif'
+  'https://media.tenor.com/iYNJR0wL_s8AAAAC/melancholy-haruhi-suzumiya.gif',
+  'https://media.tenor.com/e0-bLlepygYAAAAC/angry-yelling.gif'
 ]
 happy_gif = [
   'https://media.tenor.com/bnQLFSkqAhoAAAAC/haruhi-win.gif',
   'https://media.tenor.com/uMU9hNEw_zQAAAAC/haruhi-melancholy.gif'
 ]
 poke_gif =[
-  'https://media1.tenor.com/m/xxYMTHpOvz4AAAAC/haruhi-suzumiya-haruhi.gif'
+  'https://media.tenor.com/xxYMTHpOvz4AAAAC/haruhi-suzumiya-haruhi.gif'
 ]
 tangi_gif = [
-   'https://media1.tenor.com/m/pbzPHcx81nkAAAAC/haruhi-suzumiya-waking-up.gif'
+   'https://media.tenor.com/pbzPHcx81nkAAAAC/haruhi-suzumiya-waking-up.gif'
 ]
 
 @client.hybrid_command()
@@ -125,13 +130,18 @@ async def server_info(interaction: discord.Interaction):
     embed.add_field(name="Owner", value=guild.owner)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# @client.tree.command(name="poll")
-# @app_commands.describe(question="Pertanyaan", option1="Opsi 1", option2="Opsi 2")
-# async def poll(interaction: discord.Interaction, question: str, option1: str, option2: str):
-#     embed = discord.Embed(title=question, description=f"1️⃣ {option1}\n2️⃣ {option2}")
-#     poll_message = await interaction.response.send_message(embed=embed)
-#     await poll_message.add_reaction("1️⃣")
-#     await poll_message.add_reaction("2️⃣")
+@client.hybrid_command()
+async def poll(ctx, question, option1, option2):
+    embed = discord.Embed(
+        title=question,
+        description=f"1️⃣ {option1}\n2️⃣ {option2}",
+        colour=discord.Colour.orange()
+    )
+
+    message = await ctx.send(embed=embed)
+
+    await message.add_reaction("1️⃣")
+    await message.add_reaction("2️⃣")
 
 # Invite Button
 #anda bisa mengganti ini ke link yang anda mau
@@ -190,12 +200,6 @@ async def KTP(interaction: discord.Interaction, member: discord.Member):
   embed.set_thumbnail(url=member.avatar.url)
   await interaction.response.send_message(embed=embed, ephemeral=True)
 
-
-
-# Token
-#buat file lokal dengan nama token.txt dan isi dengan token discord anda token bersifat private
-with open('token.txt', 'r') as file:
-    TOKEN = file.read().strip()
 
 # Run the bot
 client.run(TOKEN)

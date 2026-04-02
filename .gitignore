@@ -1,4 +1,6 @@
 /ffmpeg
 /richpresence.py
+/richpresencemash.py
 /token.txt
 /__pycache__
+/.env
