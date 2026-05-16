@@ -144,39 +144,58 @@ async def poll(ctx, question, option1, option2):
     await message.add_reaction("2️⃣")
 
 # Invite Button
-#anda bisa mengganti ini ke link yang anda mau
+# anda bisa mengganti ini ke link yang anda mau
 class InviteButton(discord.ui.View):
-  def __init__(self, inv: str):
-    super().__init__()
-    self.inv = inv
-    self.add_item(
-      discord.ui.Button(label="Roti",
-                        url="https://www.youtube.com/shorts/JNEAukTO9k4"))
+    def __init__(self, inv: str):
+        super().__init__()
+        self.inv = inv
+        self.add_item(
+            discord.ui.Button(
+                label="Roti",
+                url="https://www.youtube.com/shorts/JNEAukTO9k4"
+            )
+        )
 
-  @discord.ui.button(label="Saint Invite Link",
-                     style=discord.ButtonStyle.blurple)
-  async def inviteSaint(self, interaction: discord.Interaction,
-                        button: discord.ui.Button):
-    await interaction.response.send_message(
-      content="https://discord.gg/dFUx4w5", ephemeral=True)
-      
-  # async def inviteBtn(self, interaction: discord.Interaction,
-  #                     button: discord.ui.Button):
-  #   await interaction.response.send_message(self.inv, ephemeral=True)
+    @discord.ui.button(
+        label="Saint Invite Link",
+        style=discord.ButtonStyle.blurple
+    )
+    async def inviteSaint(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button
+    ):
+        await interaction.response.send_message(
+            content=self.inv,
+            ephemeral=True
+        )
 
-  @discord.ui.button(label="My YT channel", style=discord.ButtonStyle.green)
-  async def inviteYT(self, interaction: discord.Interaction,
-                      button: discord.ui.Button):
-    await interaction.response.send_message(
-      content="https://www.youtube.com/channel/UCasyDhK0j3BFt-puGHw74TA", ephemeral=True)
+    @discord.ui.button(
+        label="My YT channel",
+        style=discord.ButtonStyle.green
+    )
+    async def inviteYT(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button
+    ):
+        await interaction.response.send_message(
+            content="https://www.youtube.com/channel/UCasyDhK0j3BFt-puGHw74TA",
+            ephemeral=True
+        )
 
 
 @client.command()
 async def invite(ctx: commands.Context):
-  inv = await ctx.channel.create_invite()
-  await ctx.send("Pilih Tombol dibawah untuk Invite Link!",
-                 view=InviteButton(str(inv)))
-
+    inv = await ctx.channel.create_invite(
+        max_age=86400,
+        max_uses=0,     
+        unique=True     
+    )
+    await ctx.send(
+        "Pilih tombol di bawah untuk Invite Link!",
+        view=InviteButton(str(inv))
+    )
 
 # profil
 
